@@ -1,4 +1,4 @@
-# 00 — Virtual Machine Lab Creation
+# 00 - Virtual Machine Lab Creation
 
 **Dates:** Sept–Oct 2025  
 **Purpose:** This folder documents how I built the **baseline lab environment** used in all subsequent cases (P1–P6).  
