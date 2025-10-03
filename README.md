@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./Banner.png" alt="SOC Analyst Lab Portfolio Banner"/>
+  <img src="./Banner.png" alt="SOC Analyst Lab Portfolio Banner" width="800"/>
 </p>
 
 <p align="center">
