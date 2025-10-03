@@ -13,9 +13,9 @@ Build a reproducible lab environment simulating a small SOC setup:
 - **SIEM** (Ubuntu w/ Wazuh Manager + Elastic + Kibana)  
 
 With **segmented networks**:  
-- **AttackerNet** -> attacker ↔ target only  
-- **SensorNet** -> target ↔ SIEM (log path)  
-- **Host-only** -> analyst host ↔ SIEM (Kibana)  
+- **AttackerNet** -> attacker <-> target only  
+- **SensorNet** -> target <-> SIEM (log path)  
+- **Host-only** -> analyst host <-> SIEM (Kibana)  
 
 ---
 
