@@ -1,5 +1,5 @@
 # Cybersecurity Case Files
-Welcome to my **SOC Analyst Lab Portfolio** - My collection of hands-on cases (P1-P6) I built and also the job simulations offered by some companies on **Forage** website while training for CompTIA CySA+ and SOC workflows.
+Welcome to my **SOC Analyst Lab Portfolio** - My collection of hands-on cases (P1-P6), mini Python tools I built and also the job simulations offered by some companies on **Forage** website while training for CompTIA CySA+ and SOC workflows.
 
 ---
 
@@ -18,6 +18,13 @@ Welcome to my **SOC Analyst Lab Portfolio** - My collection of hands-on cases (P
 - [OSI Layer Mapping (Option A)](./docs/osi-mapping.md)
 - [Connectivity Verification Checklist](./docs/verification.md)
 
+---
+
+## Python Projects
+Practical **mini Python tools** created to support SOC workflows — parsing logs, enriching IOCs, generating SIEM summaries, and automating triage tasks.  
+Each script has its own doc (Objective → Usage → Output → Notes) with sample runs and screenshots.  
+- [Python Project Index](./07-Python-Projects/README.md)
+  
 ---
 ## Forage Projects
 These are structured virtual experience projects from **Forage**, simulating real-world SOC and cybersecurity analyst tasks:
