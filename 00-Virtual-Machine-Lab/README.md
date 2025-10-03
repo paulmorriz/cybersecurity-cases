@@ -17,6 +17,10 @@ With **segmented networks**:
 - **SensorNet** -> target <-> SIEM (log path)  
 - **Host-only** -> analyst host <-> SIEM (Kibana)  
 
+<p align="center">
+  <img src="./screenshots/Topology.png" alt="SOC Lab banner" width="1000">
+</p>
+
 ---
 
 ## Environment
