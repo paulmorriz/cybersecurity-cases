@@ -21,8 +21,8 @@ Welcome to my **SOC Analyst Lab Portfolio** - My collection of hands-on cases (P
 ---
 
 ## Python Projects
-Practical **mini Python tools** created to support SOC workflows — parsing logs, enriching IOCs, generating SIEM summaries, and automating triage tasks.  
-Each script has its own doc (Objective → Usage → Output → Notes) with sample runs and screenshots.  
+Practical **mini Python tools** created to support SOC workflows - parsing logs, enriching IOCs, generating SIEM summaries, and automating triage tasks.  
+Each script has its own doc (Objective -> Usage -> Output -> Notes) with sample runs and screenshots.  
 - [Python Project Index](./07-Python-Projects/README.md)
   
 ---
