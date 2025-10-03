@@ -4,12 +4,12 @@ Welcome to my **SOC Analyst Lab Portfolio** - My collection of hands-on cases (P
 ---
 
 ## Case Index
-- [P1 — SOC Detection Lab (Suricata + Wazuh + ELK Stack)](./01-P1-SOC-Detection-Lab/README.md)
-- [P2 — PCAP: DNS Exfiltration Deep Dive](./02-P2-PCAP-DNSExfil/README.md)
-- [P3 — Cloud: S3 Public Access Misconfiguration](./03-P3-CloudS3/README.md)
-- [P4 — Endpoint IR: Windows Triage & Playbook](./04-P4-EndpointIR/README.md)
-- [P5 — GRC Mini Pack: BIA + Tabletop](./05-P5-GRC/README.md)
-- [P6 — Add-ons: Honeypot & Correlation](./06-P6-Honeypot/README.md)
+- [P1 - SOC Detection Lab (Suricata + Wazuh + ELK Stack)](./01-P1-SOC-Detection-Lab/README.md)
+- [P2 - PCAP: DNS Exfiltration Deep Dive](./02-P2-PCAP-DNSExfil/README.md)
+- [P3 - Cloud: S3 Public Access Misconfiguration](./03-P3-CloudS3/README.md)
+- [P4 - Endpoint IR: Windows Triage & Playbook](./04-P4-EndpointIR/README.md)
+- [P5 - GRC Mini Pack: BIA + Tabletop](./05-P5-GRC/README.md)
+- [P6 - Add-ons: Honeypot & Correlation](./06-P6-Honeypot/README.md)
 
 ---
 ## Lab Docs
