@@ -26,8 +26,8 @@ Welcome to my **SOC Analyst Lab Portfolio** - My collection of hands-on labs (P1
 ---
 ## Lab Docs
 - [Daily Schedule](./docs/schedule.md)
-- [Lab Topology (Option A = Scenario 2)](./docs/topology.md)
-- [OSI Layer Mapping (Option A)](./docs/osi-mapping.md)
+- [Lab Topology](./docs/topology.md)
+- [OSI Layer Mapping](./docs/osi-mapping.md)
 - [Connectivity Verification Checklist](./docs/verification.md)
 
 ---
