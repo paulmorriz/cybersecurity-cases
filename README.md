@@ -41,6 +41,6 @@ Each script has its own doc (Objective -> Usage -> Output -> Notes) with sample 
 ## Forage Projects
 These are structured virtual experience projects from **Forage**, simulating real-world SOC and cybersecurity analyst tasks:
 
-- [Commonwealth Bank Introduction to Cybersecurity](./Forage-Projects/commonwealth-bank/README.md)
+- [Commonwealth Bank Introduction to Cybersecurity](./Forage-Projects/Commonwealth-Bank/README.md)
 - [AIG Shileds Up: Cybersecurity](./Forage-Projects/AIG-shields-up/README.md)
 - [Telstra Cybersecurity](./Forage-Projects/Telstra/README.md)
