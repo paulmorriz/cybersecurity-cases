@@ -1,5 +1,17 @@
+<p align="center">
+  <img src="./Banner.png" alt="SOC Analyst Lab Portfolio Banner"/>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Role-SOC%20Analyst-blue" />
+  <img src="https://img.shields.io/badge/Focus-Cybersecurity-orange" />
+  <img src="https://img.shields.io/badge/Language-Python-blue?logo=python" />
+  <img src="https://img.shields.io/badge/Bash-green?logo=gnubash" />
+  <img src="https://img.shields.io/badge/PowerShell-5391FE?logo=powershell" />
+</p>
+
 # Cybersecurity Case Files
-Welcome to my **SOC Analyst Lab Portfolio** - My collection of hands-on cases (P1-P6), mini Python tools I built and also the job simulations offered by some companies on **Forage** website while training for CompTIA CySA+ and SOC workflows.
+Welcome to my **SOC Analyst Lab Portfolio** - My collection of hands-on labs (P1-P6), Python tools I built for analysis, and job simulations completed on **Forage** while training for CompTIA CySA+ and SOC workflows.
 
 ---
 
