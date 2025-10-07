@@ -61,7 +61,7 @@ With **segmented networks**:
 
 ## Design Rationale
 Separating **AttackerNet** and **SensorNet** ensures the attacker (Kali) cannot directly reach the SIEM.  
-Only the Target mediates logs into the SIEM, simulating real-world **east–west vs. management plane separation**.  
+Only the Target mediates logs into the SIEM, simulating real-world **east–west vs. management plane separation** that mirrors a production environment. In this design, all telemetry will be forwarded through authenticated agents from the target VM, creating a realistic simulation of endpoint foothold scenario while allowing to detect and triage threats.
 
 ---
 
