@@ -1,6 +1,7 @@
 # 00 - Virtual Machine Lab Creation
 
-**Dates:** July 2026 
+**Dates:** July 2026
+
 **Purpose:** This folder documents how I built the **baseline lab environment** used in all subsequent cases (P1–P6).  
 It covers VirtualBox setup, network segmentation, OS installs, and design rationale.  
 
