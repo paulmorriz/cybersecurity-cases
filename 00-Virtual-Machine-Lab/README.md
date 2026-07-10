@@ -19,7 +19,7 @@ With **segmented networks**:
 - **Host-only** -> analyst host <-> SIEM (Kibana)  
 
 <p align="center">
-  <img src="./screenshots/Topology.png" alt="SOC Lab banner" width="600">
+  <img src="./screenshots/Topology 1.png" alt="SOC Lab banner" width="600">
 </p>
 
 ---
