@@ -86,6 +86,29 @@ This configuration guarantees that the Attacker (Kali) cannot directly route tra
 
 ## Phase 1: SIEM Provisioning & Log Pipeline Validation
 
+### The SIEM Core: Architecture & Installation Flow
+
+To build a robust, enterprise-grade SIEM without the massive licensing costs, this lab leverages the open-source synergy of Wazuh and the Elastic Stack (ELK). They are widely considered a gold standard in the open-source security community due to their scalability, active threat-intelligence community, and native mapping to the MITRE ATT&CK framework.
+
+Understanding the order of installation is critical, as each component builds upon the foundation of the previous one:
+
+1. **Elasticsearch (The Data Layer)**: This is the core database and search engine. It must be installed first because it provides the storage and indexing infrastructure. It is designed to handle massive volumes of raw log data and execute lightning-fast queries.
+
+2. **Wazuh Manager (The Analytical Brain)**: Installed second. As a powerful fork of OSSEC, it acts as the central engine that collects logs from endpoint agents, analyzes them in real-time, performs file integrity monitoring (FIM), and triggers alerts based on security rules.
+
+3. **Kibana (The Presentation Layer)**: Installed third. Kibana is the web interface. It cannot function without Elasticsearch. It connects to the Data Layer to provide the visual dashboards, search interfaces, and the Wazuh UI plugin for the security analyst.
+
+4. **Filebeat (The Data Pipeline)**: Installed last (on the Manager node).
+
+   
+  - Why Filebeat? In modern architectures, Wazuh no longer writes directly to Elasticsearch. Instead, it writes its alerts to a local JSON file (alerts.json).
+    Filebeat, a highly optimized and lightweight log shipper, is deployed to monitor this file and securely forward the data to Elasticsearch. Wazuh transitioned
+    to this pipeline model because Filebeat handles backpressure beautifully, ensuring that if Elasticsearch is temporarily overwhelmed, no security alerts are
+    dropped or lost in transit.
+    
+
+### Deployment & Validation Steps
+
 1. **OS Preparation**: Ubuntu Server 22.04 LTS was provisioned with adequate memory and storage to handle the resource-heavy Elastic stack.
 
 <p align="center">
@@ -107,15 +130,14 @@ This configuration guarantees that the Attacker (Kali) cannot directly route tra
 3. **End-to-End Pipeline Validation:** The logging infrastructure relies on Filebeat to ship raw logs from Wazuh to Elasticsearch.
     to verify its integrity:
 
-
- - **Backend Verification**: Called the Elasticsearch API (_cat/indices) via curl to ensure the log index (wazuh-alerts-4.x-*) was actively generating and
+  - **Backend Verification**: Called the Elasticsearch API (_cat/indices) via curl to ensure the log index (wazuh-alerts-4.x-*) was actively generating and
    recording document flows (docs count).
 
 <p align="center">
   <img src="./screenshots/00_kibana_running 1 backend.png" alt="SOC Lab banner" width="600">
 </p>
 
- - **Frontend Visualization**: Confirmed that backend data was successfully parsed and visually represented via histograms in Kibana Discover, proving the data
+  - **Frontend Visualization**: Confirmed that backend data was successfully parsed and visually represented via histograms in Kibana Discover, proving the data
    pipeline is 100% operational.
 
 <p align="center">
