@@ -135,6 +135,12 @@ To resolve this "dpkg loop of death", I performed a hard manual cleanup. I bypas
   <img src="./screenshots/00_dpkg_error_127_troubleshoot.png" alt="Broken Package Troubleshoot" width="600">
 </p>
 
+3. **Lingering API Processes & Port Exhaustion (PID Hunting)**: Despite removing the broken packages and terminating the primary Wazuh manager services, the automated re-installation failed again because TCP port 55000 was still actively bound. The Wazuh API service runs under a generic `python3` process, which allowed it to evade standard `killall` commands that were only targeting Wazuh-specific names. To resolve this, I utilized socket statistics (`ss -tulpn | grep 55000`) to isolate the exact Process ID (PID) holding the network interface hostage. After identifying the rogue `python3` process (PID: 54650), I issued a targeted `SIGKILL` (`kill -9 54650`). Subsequent verification confirmed the port was completely cleared, enabling the Wazuh installation script to bind successfully to its required ports and finalize the deployment.
+
+<p align="center">
+  <img src="./screenshots/00_pid_hunting_port_55000.png" alt="PID Hunting and Port Clearing" width="600">
+</p>
+
 ---
 ## Next Steps (Work in Progress)
 
