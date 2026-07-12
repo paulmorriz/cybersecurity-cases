@@ -9,17 +9,17 @@ It covers VirtualBox setup, network segmentation, OS installs, SIEM provisioning
 
 ## Objective
 Build a reproducible lab environment simulating a small SOC setup:  
-- **Attacker** (Kali)  
+- **Attacker** (Kali Linux)  
 - **Target** (Ubuntu w/ Suricata + Wazuh Agent)  
-- **SIEM** (Ubuntu w/ Wazuh Manager + Elastic + Kibana)  
+- **SIEM** (Ubuntu w/ Wazuh Server + Indexer + Dashboard)  
 
 With **segmented networks**:  
-- **AttackerNet** = attacker <-> target only  
-- **SensorNet** = target <-> SIEM (log path)  
-- **Host-only** = analyst host <-> SIEM (Kibana)  
+- **AttackerNet** = Attacker <-> target only  
+- **SensorNet** = Target <-> SIEM (log path)  
+- **Host-only** = Analyst host <-> SIEM (UI Dashboard)  
 
 <p align="center">
-  <img src="./screenshots/Topology 1.png" alt="SOC Lab banner" width="600">
+  <img src="./screenshots/Topology_Updated.png" alt="SOC Lab banner" width="600">
 </p>
 
 ---
@@ -32,9 +32,9 @@ With **segmented networks**:
   - SensorNet (192.168.58.0/24)
   - AttackerNet (192.168.56.0/24)  
 - **VMs:**
-  - Kali Linux (attacker)
-  - Ubuntu 22.04 (target, Suricata + Wazuh agent)
-  - Ubuntu 22.04 (siem, Wazuh manager + Elastic + Kibana)
+  - Kali Linux (Attacker)
+  - Ubuntu 24.04 (TARGET, Suricata + Wazuh agent)
+  - Ubuntu 24.04 (SIEM, Wazuh Server + Indexer + Dashboard)
 <br></br>
 
 **1. Network Topology & OSI Layer Equivalences**
@@ -42,35 +42,34 @@ With **segmented networks**:
 Before installing any software, the network infrastructure had to be clearly defined. In a real-world datacenter, this involves physical cables, switches, and routers. In VirtualBox, these components are simulated via virtual network adapters. To simulate an enterprise-grade, isolated environment, the SIEM VM relies on three distinct interfaces:
 
 - **Adapter 1**: NAT (Updates & External Access)
-This acts like a standard home router operating at OSI Layer 3. It provides outbound internet access so the VM can download packages (Elasticsearch, Wazuh, etc.) while blocking inbound external connections to keep the internal lab secure.
+This acts like a standard home router operating at OSI Layer 3. It provides outbound internet access so the VM can download packages while blocking inbound external connections to keep the internal lab secure.
 
 <p align="center">
-  <img src="./screenshots/00_siem_nic_adapter1_nat.png" alt="SOC Lab banner" width="600">
+  <img src="./screenshots/00_siem_nic_adapter1_nat.png" alt="SIEM Adapter 1" width="600">
 </p>
 
 - **Adapter 2**: Internal Network (SensorNet)
-This acts as an isolated physical switch inside a secure server room (OSI Layer 2). SensorNet is intentionally air-gapped where it has no route to the Windows host or the internet. This path is dedicated purely for secure, east-west communication between the Wazuh Agent (Target VM) and the Wazuh Manager (SIEM VM) via TCP ports 1514/1515.
+This acts as an isolated physical switch inside a secure server room (OSI Layer 2). SensorNet is intentionally air-gapped where it has no route to the Windows host or the internet. This path is dedicated purely for secure, east-west communication between the Wazuh Agent (Target VM) and the Wazuh Manager (SIEM VM) via TCP ports 1514 & 1515.
 
 <p align="center">
-  <img src="./screenshots/00_siem_nic_adapter2_sensornet.png" alt="SOC Lab banner" width="600">
+  <img src="./screenshots/00_siem_nic_adapter2_sensornet.png" alt="SIEM Adapter 2" width="600">
 </p>
 
 - **Adapter 3**: Host-Only Adapter
-This functions like a physical cross-over cable plugged directly from the analyst's laptop into the server's management port. This path isolates the Management Plane, allowing access to the Kibana dashboard (Port 5601) directly from the Windows host browser without exposing the SIEM to the broader network.
+This functions like a physical cross-over cable plugged directly from the analyst's laptop into the server's management port. This path isolates the Management Plane, allowing access to the Wazuh Dashboard (Port 443) directly from the Windows host browser without exposing the SIEM to the broader network.
 
 <p align="center">
-  <img src="./screenshots/00_siem_nic_adapter3_hostonly.png" alt="SOC Lab banner" width="600">
+  <img src="./screenshots/00_siem_nic_adapter3_hostonly.png" alt="SIEM Adapter 3" width="600">
 </p>
 
 <p align="center">
-  <img src="./screenshots/00_vbox_host_network_manager.png" alt="SOC Lab banner" width="600">
+  <img src="./screenshots/00_vbox_host_network_manager.png" alt="Host Network Manager" width="600">
 </p>
 <br></br> 
 
 **2. IP Addressing Strategy: Static vs. DHCP**
 
-In a centralized server architecture, using dynamic IPs (DHCP) for critical infrastructure is a flaw; an IP lease renewal would instantly break agent-manager 
-communication. Therefore, Static IPs were hardcoded at the OS kernel level using **netplan**:
+In a centralized server architecture, using dynamic IPs (DHCP) for critical infrastructure is a flaw; an IP lease renewal would instantly break agent-manager communication. Therefore, Static IPs were hardcoded at the OS kernel level using **netplan**:
 
 - **enp0s3** (NAT) is left on DHCP to receive outbound internet.
 - **enp0s8** (SensorNet) is statically set to **192.168.58.10**.
@@ -79,7 +78,7 @@ communication. Therefore, Static IPs were hardcoded at the OS kernel level using
 This configuration guarantees that the Attacker (Kali) cannot directly route traffic to the SIEM, forcing all interactions through the Target VM and accurately mirroring production environment security controls.
 
 <p align="center">
-  <img src="./screenshots/00_netplan_applied_siem_20260709_1900.png" alt="SOC Lab banner" width="600">
+  <img src="./screenshots/00_netplan_applied_siem.png" alt="Netplan Configuration" width="600">
 </p>
 
 ---
@@ -88,77 +87,51 @@ This configuration guarantees that the Attacker (Kali) cannot directly route tra
 
 ### The SIEM Core: Architecture & Installation Flow
 
-To build a robust, enterprise-grade SIEM without the massive licensing costs, this lab leverages the open-source synergy of Wazuh and the Elastic Stack (ELK). They are widely considered a gold standard in the open-source security community due to their scalability, active threat-intelligence community, and native mapping to the MITRE ATT&CK framework.
+To build a robust, enterprise-grade SIEM without the massive licensing costs, this lab leverages the modern **Wazuh unified platform**. Evolving from its reliance on the traditional ELK Stack, Wazuh now operates on a streamlined, self-contained architecture (based on OpenSearch) to eliminate compatibility issues and optimize performance for security operations.
 
-Understanding the order of installation is critical, as each component builds upon the foundation of the previous one:
+Understanding the components is critical:
 
-1. **Elasticsearch (The Data Layer)**: This is the core database and search engine. It must be installed first because it provides the storage and indexing infrastructure. It is designed to handle massive volumes of raw log data and execute lightning-fast queries.
+1. **Wazuh Indexer (The Data Layer)**: This is the core database and search engine. It provides the storage and indexing infrastructure, designed to handle massive volumes of raw log data and execute lightning-fast queries.
 
-2. **Wazuh Manager (The Analytical Brain)**: Installed second. As a powerful fork of OSSEC, it acts as the central engine that collects logs from endpoint agents, analyzes them in real-time, performs file integrity monitoring (FIM), and triggers alerts based on security rules.
+2. **Wazuh Server (The Analytical Brain)**: The central engine that collects logs from endpoint agents, analyzes them in real-time, performs file integrity monitoring (FIM), and triggers alerts based on security rules. It securely writes these alerts directly to the Indexer.
 
-3. **Kibana (The Presentation Layer)**: Installed third. Kibana is the web interface. It cannot function without Elasticsearch. It connects to the Data Layer to provide the visual dashboards, search interfaces, and the Wazuh UI plugin for the security analyst.
-
-4. **Filebeat (The Data Pipeline)**: Installed last (on the Manager node).
-
-   
-  - Why Filebeat? In modern architectures, Wazuh no longer writes directly to Elasticsearch. Instead, it writes its alerts to a local JSON file (alerts.json).
-    Filebeat, a highly optimized and lightweight log shipper, is deployed to monitor this file and securely forward the data to Elasticsearch. Wazuh transitioned
-    to this pipeline model because Filebeat handles backpressure beautifully, ensuring that if Elasticsearch is temporarily overwhelmed, no security alerts are
-    dropped or lost in transit.
-    
+3. **Wazuh Dashboard (The Presentation Layer)**: The web interface. It connects to the Data Layer to provide visual dashboards, search interfaces, and unified agent management for the security analyst.
 
 ### Deployment & Validation Steps
 
-1. **OS Preparation**: Ubuntu Server 22.04 LTS was provisioned with adequate memory and storage to handle the resource-heavy Elastic stack.
+1. **OS Preparation**: Ubuntu Server 24.04 LTS was provisioned with adequate memory and storage to handle the SIEM components.
 
 <p align="center">
-  <img src="./screenshots/00_siem_os_prepped_20260709_1825.png" alt="SOC Lab banner" width="600">
+  <img src="./screenshots/00_siem_os_prepped.png" alt="OS Preparation" width="600">
 </p>
 
-
-2. **Service Installation**: Deployed Wazuh Manager as the detection engine, alongside Elasticsearch (data storage) and Kibana (visualization).
+2. **Service Installation**: Deployed the complete Wazuh stack (Indexer, Server, and Dashboard) via the automated provisioning script to ensure correct cryptographic certificate generation between the nodes.
 
 <p align="center">
-  <img src="./screenshots/00_kibana_running_20260709_1955.png" alt="SOC Lab banner" width="600">
+  <img src="./screenshots/00_wazuh_installation_completed.png" alt="Wazuh Installation Output" width="600">
 </p>
 
-<p align="center">
-  <img src="./screenshots/00_kibana_running 2.png" alt="SOC Lab banner" width="600">
-</p>
-
-
-3. **End-to-End Pipeline Validation:** The logging infrastructure relies on Filebeat to ship raw logs from Wazuh to Elasticsearch.
-    to verify its integrity:
-
-  - **Backend Verification**: Called the Elasticsearch API (_cat/indices) via curl to ensure the log index (wazuh-alerts-4.x-*) was actively generating and
-   recording document flows (docs count).
+3. **End-to-End Pipeline Validation:** Validated the management plane by accessing the Wazuh Dashboard from the Windows host via the Host-only network (`https://192.168.57.10`). Confirmed the backend services were successfully linked and the UI was fully operational.
 
 <p align="center">
-  <img src="./screenshots/00_kibana_running 1 backend.png" alt="SOC Lab banner" width="600">
-</p>
-
-  - **Frontend Visualization**: Confirmed that backend data was successfully parsed and visually represented via histograms in Kibana Discover, proving the data
-   pipeline is 100% operational.
-
-<p align="center">
-  <img src="./screenshots/00_kibana_running 2.png" alt="SOC Lab banner" width="600">
+  <img src="./screenshots/00_wazuh_dashboard_running.png" alt="Wazuh Dashboard" width="600">
 </p>
 
 **Technical Challenges & Root Cause Analysis**
 
 Building this baseline presented real-world operational incidents that required deep troubleshooting and excellent practice for live incident response:
 
-1. **Storage Depletion (LVM Resizing)**: The initial installation failed when the system directory ran out of space. Expanding the virtual disk in VirtualBox was not enough; the OS required manual repartitioning of the Logical Volume Manager (LVM) via CLI (growpart, pvresize, lvextend, and resize2fs) to recognize and utilize the new disk capacity.
+1. **Storage Depletion (LVM Resizing)**: During the Wazuh Dashboard provisioning, the installation abruptly failed and triggered an automated rollback with an `E: Write error - write (28: No space left on device)` error. Root cause analysis revealed that despite provisioning a 50GB virtual disk in VirtualBox, the Ubuntu 24.04 installer defaults to allocating only ~50% of the storage to the root Logical Volume (LV), leaving the rest unallocated. 
+To resolve this without destroying the VM, I performed manual LVM resizing via CLI. I expanded the logical volume to utilize 100% of the available free space (`sudo lvextend -l +100%FREE /dev/ubuntu-vg/ubuntu-lv`), and subsequently resized the filesystem to recognize the new capacity (`sudo resize2fs /dev/mapper/ubuntu--vg-ubuntu--lv`). After repairing the locked package manager state (`sudo dpkg --configure -a` and `apt-get clean`), the deployment proceeded successfully.
 
-2. **Log Pipeline Blockage (Permission Denied)**: Filebeat initially refused to ship logs, throwing an input disabled error. Investigating via journalctl revealed the OS-level filebeat user lacked read permissions for the Wazuh log directory. Instead of applying an insecure chmod 777 quick-fix, I enforced the Principle of Least Privilege by adding the filebeat user to the wazuh group and setting strict chmod 750 permissions.
-
-3. **Broken Package State**: An interrupted installation script caused the package manager (apt) to show Filebeat as installed, even though its service user was never created in the Linux database. I resolved this state inconsistency by manually creating the user account and executing a --reinstall command on the package to restore dependency integrity.
-
+<p align="center">
+  <img src="./screenshots/00_lvm_resizing_troubleshoot.png" alt="LVM Resizing" width="600">
+</p>
 
 ---
 ## Next Steps (Work in Progress)
 
-- Phase 2: Target VM Provisioning (Installing Suricata for NIDS and enrolling the Wazuh Agent).
+- Phase 2: Target VM Provisioning (Installing Suricata for NIDS and enrolling the Wazuh Agent via Dashboard UI).
 
 - Phase 3: Attacker VM Setup (Deploying Kali Linux on the AttackerNet).
 
@@ -186,4 +159,3 @@ Only the Target mediates logs into the SIEM, simulating real-world **east–west
 ---
 
 **Next:** [P1 - SOC Detection Lab](../01-P1-SOC-Detection-Lab/README.md)
-
