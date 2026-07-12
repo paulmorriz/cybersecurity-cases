@@ -128,6 +128,13 @@ To resolve this without destroying the VM, I performed manual LVM resizing via C
   <img src="./screenshots/00_lvm_resizing_troubleshoot.png" alt="LVM Resizing" width="600">
 </p>
 
+2. **Broken Package State & Port Collisions (dpkg Error 127)**: The storage depletion during the initial run caused the Wazuh installer to crash mid-execution. This left orphaned "zombie" processes running in the background, which locked critical TCP ports (1515 and 55000) and prevented reinstallation. Furthermore, the package manager (`dpkg`) was locked in a broken state; standard removal commands failed with a `pre-removal script subprocess returned error exit status 127` because the uninstaller script itself was partially overwritten or corrupted during the disk space exhaustion. 
+To resolve this "dpkg loop of death", I performed a hard manual cleanup. I bypassed the package manager by manually deleting the corrupted control files (`rm -f /var/lib/dpkg/info/wazuh-manager.prerm*`), terminated the zombie processes (`killall -9`), and executed a forced package purge (`apt-get purge -y wazuh-manager`). After deleting the residual `/var/ossec` directory, the system was completely sterilized for a clean deployment using the `-o` (overwrite) flag.
+
+<p align="center">
+  <img src="./screenshots/00_dpkg_error_127_troubleshoot.png" alt="Broken Package Troubleshoot" width="600">
+</p>
+
 ---
 ## Next Steps (Work in Progress)
 
