@@ -19,7 +19,7 @@ With **segmented networks**:
 - **Host-only** = Analyst host <-> SIEM (UI Dashboard)  
 
 <p align="center">
-  <img src="./screenshots/Topology_Updated.png" alt="SOC Lab banner" width="600">
+  <img src="./screenshots/Topology Updated.png" alt="SOC Lab banner" width="600">
 </p>
 
 ---
@@ -102,19 +102,23 @@ Understanding the components is critical:
 1. **OS Preparation**: Ubuntu Server 24.04 LTS was provisioned with adequate memory and storage to handle the SIEM components.
 
 <p align="center">
-  <img src="./screenshots/00_siem_os_prepped.png" alt="OS Preparation" width="600">
+  <img src="./screenshots/00_Memory_Check_Enough.png" alt="OS Preparation" width="600">
 </p>
 
 2. **Service Installation**: Deployed the complete Wazuh stack (Indexer, Server, and Dashboard) via the automated provisioning script to ensure correct cryptographic certificate generation between the nodes.
 
 <p align="center">
-  <img src="./screenshots/00_wazuh_installation_completed.png" alt="Wazuh Installation Output" width="600">
+  <img src="./screenshots/00_Wazuh_ Installation_ _Successful.png" alt="Wazuh Installation Output" width="600">
 </p>
 
 3. **End-to-End Pipeline Validation:** Validated the management plane by accessing the Wazuh Dashboard from the Windows host via the Host-only network (`https://192.168.57.10`). Confirmed the backend services were successfully linked and the UI was fully operational.
 
 <p align="center">
-  <img src="./screenshots/00_wazuh_dashboard_running.png" alt="Wazuh Dashboard" width="600">
+  <img src="./screenshots/00_Wazuh_Admin_Login_Panel.png" alt="Wazuh Dashboard" width="600">
+</p>
+
+<p align="center">
+  <img src="./screenshots/00_Wazuh_Dashboard_Manager.png" alt="Wazuh Dashboard" width="600">
 </p>
 
 **Technical Challenges & Root Cause Analysis**
@@ -125,20 +129,20 @@ Building this baseline presented real-world operational incidents that required 
 To resolve this without destroying the VM, I performed manual LVM resizing via CLI. I expanded the logical volume to utilize 100% of the available free space (`sudo lvextend -l +100%FREE /dev/ubuntu-vg/ubuntu-lv`), and subsequently resized the filesystem to recognize the new capacity (`sudo resize2fs /dev/mapper/ubuntu--vg-ubuntu--lv`). After repairing the locked package manager state (`sudo dpkg --configure -a` and `apt-get clean`), the deployment proceeded successfully.
 
 <p align="center">
-  <img src="./screenshots/00_lvm_resizing_troubleshoot.png" alt="LVM Resizing" width="600">
+  <img src="./screenshots/00_harddisk_level_up.png" alt="LVM Resizing" width="600">
 </p>
 
 2. **Broken Package State & Port Collisions (dpkg Error 127)**: The storage depletion during the initial run caused the Wazuh installer to crash mid-execution. This left orphaned "zombie" processes running in the background, which locked critical TCP ports (1515 and 55000) and prevented reinstallation. Furthermore, the package manager (`dpkg`) was locked in a broken state; standard removal commands failed with a `pre-removal script subprocess returned error exit status 127` because the uninstaller script itself was partially overwritten or corrupted during the disk space exhaustion. 
 To resolve this "dpkg loop of death", I performed a hard manual cleanup. I bypassed the package manager by manually deleting the corrupted control files (`rm -f /var/lib/dpkg/info/wazuh-manager.prerm*`), terminated the zombie processes (`killall -9`), and executed a forced package purge (`apt-get purge -y wazuh-manager`). After deleting the residual `/var/ossec` directory, the system was completely sterilized for a clean deployment using the `-o` (overwrite) flag.
 
 <p align="center">
-  <img src="./screenshots/00_dpkg_error_127_troubleshoot.png" alt="Broken Package Troubleshoot" width="600">
+  <img src="./screenshots/00_purging_previous_installation_files.png" alt="Broken Package Troubleshoot" width="600">
 </p>
 
 3. **Lingering API Processes & Port Exhaustion (PID Hunting)**: Despite removing the broken packages and terminating the primary Wazuh manager services, the automated re-installation failed again because TCP port 55000 was still actively bound. The Wazuh API service runs under a generic `python3` process, which allowed it to evade standard `killall` commands that were only targeting Wazuh-specific names. To resolve this, I utilized socket statistics (`ss -tulpn | grep 55000`) to isolate the exact Process ID (PID) holding the network interface hostage. After identifying the rogue `python3` process (PID: 54650), I issued a targeted `SIGKILL` (`kill -9 54650`). Subsequent verification confirmed the port was completely cleared, enabling the Wazuh installation script to bind successfully to its required ports and finalize the deployment.
 
 <p align="center">
-  <img src="./screenshots/00_pid_hunting_port_55000.png" alt="PID Hunting and Port Clearing" width="600">
+  <img src="./screenshots/00_port_conflict.png" alt="PID Hunting and Port Clearing" width="600">
 </p>
 
 ---
